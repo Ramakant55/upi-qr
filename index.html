@@ -20,9 +20,79 @@
       height: auto;
       border-radius: 8px;
     }
+    
+    /* Pull to refresh styles */
+    .pull-refresh-indicator {
+      position: fixed;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+    
+    .pull-refresh-indicator.visible {
+      top: 20px;
+    }
+    
+    .pull-refresh-indicator.loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    .refresh-icon {
+      width: 24px;
+      height: 24px;
+      transition: transform 0.3s ease;
+    }
+    
+    .refresh-icon.spinning {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.1); }
+    }
+    
+    .pull-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.1s ease;
+      z-index: 999;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 sm:p-6">
+  <!-- Pull to refresh indicator -->
+  <div class="pull-refresh-indicator" id="pullIndicator">
+    <svg class="refresh-icon" id="refreshIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+    </svg>
+  </div>
+  
+  <!-- Pull progress bar -->
+  <div class="pull-progress" id="pullProgress"></div>
+  
   <div class="max-w-xl w-full bg-white rounded-2xl shadow-lg p-4 sm:p-6">
     <h1 class="text-xl sm:text-2xl font-semibold mb-3">Fixed-Amount UPI QR</h1>
     <!-- <p class="text-xs sm:text-sm text-gray-600 mb-4">Jab koi scan karega, to jo amount yaha daala gaya hai wahi pre-fill ho jayega.</p> -->
@@ -71,6 +141,216 @@
     const qrcodeEl = document.getElementById('qrcode');
     let qr;
     
+    // Pull to refresh variables
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchEndY = 0;
+    let isPulling = false;
+    let isRefreshing = false;
+    const pullThreshold = 120; // Distance needed to trigger refresh
+    const maxPullDistance = 200; // Maximum pull distance
+    
+    // Get UI elements
+    const pullIndicator = document.getElementById('pullIndicator');
+    const refreshIcon = document.getElementById('refreshIcon');
+    const pullProgress = document.getElementById('pullProgress');
+    
+    // Reset function to clear all data
+    function resetAllData() {
+      // Clear all form fields
+      document.getElementById('vpa').value = '';
+      document.getElementById('pname').value = '';
+      document.getElementById('amount').value = '';
+      document.getElementById('note').value = '';
+      
+      // Clear QR code
+      qrcodeEl.innerHTML = '';
+      
+      // Disable download button
+      document.getElementById('download').disabled = true;
+      
+      // Clear deeplink if exists
+      const deeplinkEl = document.getElementById('deeplink');
+      if (deeplinkEl) {
+        deeplinkEl.value = '';
+      }
+      
+      // Clear global variables
+      window.generatedBlob = null;
+      window.generatedBase64 = null;
+      window.generatedFilename = null;
+      
+      console.log('✓ All data reset');
+    }
+    
+    // Pull to refresh functions
+    function handleTouchStart(e) {
+      if (isRefreshing) return;
+      
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      touchEndY = touchStartY;
+      isPulling = false;
+    }
+    
+    function handleTouchMove(e) {
+      if (isRefreshing) return;
+      
+      const currentY = e.touches[0].clientY;
+      const currentX = e.touches[0].clientX;
+      const pullDistance = currentY - touchStartY;
+      const horizontalMovement = Math.abs(currentX - touchStartX);
+      
+      // Only start pulling if it's a downward vertical gesture
+      if (pullDistance > 0 && horizontalMovement < 50 && window.scrollY === 0) {
+        isPulling = true;
+        touchEndY = currentY;
+        
+        // Calculate progress (0 to 1)
+        const progress = Math.min(pullDistance / pullThreshold, 1);
+        const visualDistance = Math.min(pullDistance, maxPullDistance);
+        
+        // Update progress bar
+        pullProgress.style.transform = `scaleX(${progress})`;
+        
+        // Show and animate pull indicator
+        if (pullDistance > 30) {
+          pullIndicator.classList.add('visible');
+          
+          // Rotate icon based on pull distance
+          const rotation = (visualDistance / maxPullDistance) * 360;
+          refreshIcon.style.transform = `rotate(${rotation}deg)`;
+          
+          // Change color when threshold is reached
+          if (pullDistance >= pullThreshold) {
+            pullIndicator.style.background = 'rgba(16, 185, 129, 0.95)';
+            refreshIcon.style.color = 'white';
+          } else {
+            pullIndicator.style.background = 'rgba(255, 255, 255, 0.95)';
+            refreshIcon.style.color = 'currentColor';
+          }
+        }
+        
+        // Add slight body movement for feedback
+        document.body.style.transform = `translateY(${Math.min(pullDistance * 0.3, 30)}px)`;
+        document.body.style.transition = 'none';
+        
+        // Prevent default scrolling
+        e.preventDefault();
+      }
+    }
+    
+    function handleTouchEnd(e) {
+      if (isRefreshing) return;
+      
+      const pullDistance = touchEndY - touchStartY;
+      const horizontalMovement = Math.abs(e.changedTouches[0].clientX - touchStartX);
+      
+      // Reset body position
+      document.body.style.transform = '';
+      document.body.style.transition = 'transform 0.3s ease';
+      
+      if (isPulling && pullDistance >= pullThreshold && horizontalMovement < 100) {
+        // Trigger refresh
+        startRefresh();
+      } else {
+        // Reset UI
+        resetPullUI();
+      }
+      
+      isPulling = false;
+    }
+    
+    function startRefresh() {
+      isRefreshing = true;
+      
+      // Keep indicator visible and start spinning
+      pullIndicator.classList.add('visible', 'loading');
+      refreshIcon.classList.add('spinning');
+      refreshIcon.style.transform = '';
+      pullIndicator.style.background = 'rgba(16, 185, 129, 0.95)';
+      refreshIcon.style.color = 'white';
+      
+      // Complete progress bar
+      pullProgress.style.transform = 'scaleX(1)';
+      
+      // Reset data after a short delay for loading effect
+      setTimeout(() => {
+        resetAllData();
+        
+        // Show success and hide after delay
+        setTimeout(() => {
+          finishRefresh();
+        }, 800);
+      }, 500);
+    }
+    
+    function finishRefresh() {
+      // Hide indicator and reset
+      pullIndicator.classList.remove('visible', 'loading');
+      refreshIcon.classList.remove('spinning');
+      pullProgress.style.transform = 'scaleX(0)';
+      
+      // Reset styles
+      pullIndicator.style.background = 'rgba(255, 255, 255, 0.95)';
+      refreshIcon.style.color = 'currentColor';
+      refreshIcon.style.transform = '';
+      
+      // Show success message
+      showSuccessMessage();
+      
+      isRefreshing = false;
+    }
+    
+    function resetPullUI() {
+      pullIndicator.classList.remove('visible');
+      pullProgress.style.transform = 'scaleX(0)';
+      pullIndicator.style.background = 'rgba(255, 255, 255, 0.95)';
+      refreshIcon.style.color = 'currentColor';
+      refreshIcon.style.transform = '';
+    }
+    
+    function showSuccessMessage() {
+      const notification = document.createElement('div');
+      notification.textContent = '✓ Data reset ho gaya!';
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #10b981;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1001;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Fade in
+      setTimeout(() => notification.style.opacity = '1', 100);
+      
+      // Fade out and remove
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 2000);
+    }
+    
+    // Add touch event listeners to the body
+    document.body.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.body.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.body.addEventListener('touchend', handleTouchEnd, { passive: true });
+
     // Global function to get current QR as base64 (for Android WebView)
     window.getCurrentQRBase64 = function() {
       const canvas = qrcodeEl.querySelector('canvas');
