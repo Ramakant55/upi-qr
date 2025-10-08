@@ -134,23 +134,15 @@
       const img = qrcodeEl.querySelector('img');
       const canvas = qrcodeEl.querySelector('canvas');
       
-      let imageUrl = null;
-      
       if (canvas) {
         // Canvas approach - create high quality version with padding
         const highQualityCanvas = createHighQualityQR(canvas);
-        highQualityCanvas.toBlob((blob) => {
-          if (blob) {
-            downloadBlob(blob, 'upi-qr.png');
-          } else {
-            fallbackDownload();
-          }
-        }, 'image/png', 1.0); // Maximum quality
+        downloadCanvasAsImage(highQualityCanvas, 'upi-qr.png');
         return;
       }
       
       if (img) {
-        // Image approach - convert to canvas first for mobile compatibility
+        // Image approach - convert to canvas first for webview compatibility
         const tempCanvas = document.createElement('canvas');
         const ctx = tempCanvas.getContext('2d');
         tempCanvas.width = img.naturalWidth || img.width;
@@ -160,24 +152,12 @@
         if (img.complete) {
           ctx.drawImage(img, 0, 0);
           const highQualityCanvas = createHighQualityQR(tempCanvas);
-          highQualityCanvas.toBlob((blob) => {
-            if (blob) {
-              downloadBlob(blob, 'upi-qr.png');
-            } else {
-              fallbackDownload();
-            }
-          }, 'image/png', 1.0);
+          downloadCanvasAsImage(highQualityCanvas, 'upi-qr.png');
         } else {
           img.onload = () => {
             ctx.drawImage(img, 0, 0);
             const highQualityCanvas = createHighQualityQR(tempCanvas);
-            highQualityCanvas.toBlob((blob) => {
-              if (blob) {
-                downloadBlob(blob, 'upi-qr.png');
-              } else {
-                fallbackDownload();
-              }
-            }, 'image/png', 1.0);
+            downloadCanvasAsImage(highQualityCanvas, 'upi-qr.png');
           };
         }
         return;
@@ -186,25 +166,84 @@
       alert('QR image not found. Please generate QR first.');
     });
 
-    function downloadBlob(blob, filename) {
-      // Check if we're on mobile
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      if (isMobile && navigator.share) {
-        // Use Web Share API on mobile if available
-        const file = new File([blob], filename, { type: 'image/png' });
-        navigator.share({
-          files: [file],
-          title: 'UPI QR Code',
-          text: 'UPI Payment QR Code'
-        }).catch(() => {
-          // Fallback to traditional download
-          downloadBlobTraditional(blob, filename);
-        });
-      } else {
-        // Traditional download
-        downloadBlobTraditional(blob, filename);
+    function downloadCanvasAsImage(canvas, filename) {
+      try {
+        // Convert canvas to data URL (works in webview)
+        const dataURL = canvas.toDataURL('image/png', 1.0);
+        
+        // Check if we're in a webview environment
+        const isWebView = window.navigator.userAgent.includes('wv') || 
+                         window.Android !== undefined ||
+                         /Android.*Version\/\d+\.\d+.*Chrome/.test(navigator.userAgent);
+        
+        if (isWebView) {
+          // Webview-specific download method
+          downloadInWebView(dataURL, filename);
+        } else {
+          // Standard browser download
+          downloadDataURL(dataURL, filename);
+        }
+      } catch (error) {
+        console.error('Download error:', error);
+        // Fallback method
+        fallbackDownload();
       }
+    }
+    
+    function downloadInWebView(dataURL, filename) {
+      // Method 1: Try to trigger download via anchor with data URL
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = filename;
+      a.style.display = 'none';
+      
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup after a delay
+      setTimeout(() => {
+        try {
+          document.body.removeChild(a);
+        } catch (e) {
+          // Element might already be removed
+        }
+      }, 1000);
+      
+      // Method 2: Also try to open in new window for manual save
+      setTimeout(() => {
+        try {
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(`
+              <html>
+                <head><title>UPI QR Code</title></head>
+                <body style="margin:0; padding:20px; text-align:center; font-family:Arial;">
+                  <h3>UPI QR Code</h3>
+                  <img src="${dataURL}" style="max-width:100%; height:auto; border:1px solid #ccc;"/>
+                  <p style="margin-top:20px; color:#666;">
+                    Long press the image and select "Save Image" or "Download Image"
+                  </p>
+                </body>
+              </html>
+            `);
+            newWindow.document.close();
+          }
+        } catch (e) {
+          console.log('Could not open new window:', e);
+        }
+      }, 500);
+    }
+    
+    function downloadDataURL(dataURL, filename) {
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+      }, 100);
     }
 
     function createHighQualityQR(originalCanvas) {
@@ -239,42 +278,62 @@
       return highQualityCanvas;
     }
 
-    function downloadBlobTraditional(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      
-      // Trigger download
-      a.click();
-      
-      // Cleanup
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
-    }
-
     function fallbackDownload() {
-      // Last resort - try the old method
+      // Last resort - try the simple method
       const img = qrcodeEl.querySelector('img');
       const canvas = qrcodeEl.querySelector('canvas');
       
       if (canvas) {
-        const url = canvas.toDataURL('image/png');
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'upi-qr.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        try {
+          const dataURL = canvas.toDataURL('image/png');
+          // Open in new window for manual save
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(`
+              <html>
+                <head><title>UPI QR Code - Manual Save</title></head>
+                <body style="margin:0; padding:20px; text-align:center; font-family:Arial;">
+                  <h3>UPI QR Code</h3>
+                  <img src="${dataURL}" style="max-width:100%; height:auto; border:1px solid #ccc;"/>
+                  <p style="margin-top:20px; color:#666;">
+                    Long press the image and select "Save Image" or "Download Image"
+                  </p>
+                </body>
+              </html>
+            `);
+            newWindow.document.close();
+          } else {
+            alert('Please allow popups to download the QR code, or take a screenshot.');
+          }
+        } catch (e) {
+          alert('Unable to download. Please take a screenshot of the QR code.');
+        }
       } else if (img) {
-        // Open in new window as last resort on mobile
-        const newWindow = window.open();
-        newWindow.document.write(`<img src="${img.src}" style="width:100%;height:auto;"/>`);
-        newWindow.document.write('<p>Long press the image and select "Save Image" to download.</p>');
+        // Open in new window as last resort
+        try {
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(`
+              <html>
+                <head><title>UPI QR Code - Manual Save</title></head>
+                <body style="margin:0; padding:20px; text-align:center; font-family:Arial;">
+                  <h3>UPI QR Code</h3>
+                  <img src="${img.src}" style="max-width:100%; height:auto; border:1px solid #ccc;"/>
+                  <p style="margin-top:20px; color:#666;">
+                    Long press the image and select "Save Image" to download.
+                  </p>
+                </body>
+              </html>
+            `);
+            newWindow.document.close();
+          } else {
+            alert('Please allow popups to download the QR code, or take a screenshot.');
+          }
+        } catch (e) {
+          alert('Unable to download. Please take a screenshot of the QR code.');
+        }
+      } else {
+        alert('QR code not found. Please generate a QR code first.');
       }
     }
   </script>
