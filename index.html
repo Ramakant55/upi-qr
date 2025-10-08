@@ -70,6 +70,28 @@
   <script>
     const qrcodeEl = document.getElementById('qrcode');
     let qr;
+    
+    // Global function to get current QR as base64 (for Android WebView)
+    window.getCurrentQRBase64 = function() {
+      const canvas = qrcodeEl.querySelector('canvas');
+      const img = qrcodeEl.querySelector('img');
+      
+      if (canvas) {
+        const highQualityCanvas = createHighQualityQR(canvas);
+        const dataURL = highQualityCanvas.toDataURL('image/png', 1.0);
+        return dataURL.split(',')[1]; // Return base64 without prefix
+      } else if (img) {
+        const tempCanvas = document.createElement('canvas');
+        const ctx = tempCanvas.getContext('2d');
+        tempCanvas.width = img.naturalWidth || img.width;
+        tempCanvas.height = img.naturalHeight || img.height;
+        ctx.drawImage(img, 0, 0);
+        const highQualityCanvas = createHighQualityQR(tempCanvas);
+        const dataURL = highQualityCanvas.toDataURL('image/png', 1.0);
+        return dataURL.split(',')[1];
+      }
+      return null;
+    };
 
     function urlencode(s) {
       return encodeURIComponent(s || '');
@@ -168,21 +190,56 @@
 
     function downloadCanvasAsImage(canvas, filename) {
       try {
-        // Convert canvas to data URL (works in webview)
+        // Convert canvas to data URL and base64
         const dataURL = canvas.toDataURL('image/png', 1.0);
+        const base64 = dataURL.split(',')[1]; // Remove data:image/png;base64, prefix
         
-        // Check if we're in a webview environment
-        const isWebView = window.navigator.userAgent.includes('wv') || 
-                         window.Android !== undefined ||
-                         /Android.*Version\/\d+\.\d+.*Chrome/.test(navigator.userAgent);
-        
-        if (isWebView) {
-          // Webview-specific download method
-          downloadInWebView(dataURL, filename);
-        } else {
-          // Standard browser download
-          downloadDataURL(dataURL, filename);
+        // Check if AndroidDownloader is available (WebView with Android interface)
+        if (typeof AndroidDownloader !== 'undefined' && AndroidDownloader.saveFile) {
+          console.log('Using AndroidDownloader.saveFile method');
+          AndroidDownloader.saveFile(base64, filename);
+          return;
         }
+        
+        // Check if we should set window.generatedBlob for Android handling
+        if (window.Android !== undefined || window.navigator.userAgent.includes('wv')) {
+          console.log('WebView detected, setting up Android-compatible download');
+          
+          // Convert to blob and set to window.generatedBlob
+          canvas.toBlob((blob) => {
+            if (blob) {
+              window.generatedBlob = blob;
+              console.log('✓ Blob set to window.generatedBlob for Android handling');
+              console.log('Blob size:', blob.size, 'bytes');
+              
+              // Also try direct base64 method as backup
+              if (typeof window.handleDownload === 'function') {
+                console.log('✓ Calling window.handleDownload');
+                window.handleDownload(base64, filename);
+              }
+            }
+          }, 'image/png', 1.0);
+          
+          // Also provide base64 directly for immediate use
+          if (typeof window.handleBase64Download === 'function') {
+            console.log('✓ Calling window.handleBase64Download');
+            window.handleBase64Download(base64, filename);
+          } else {
+            console.log('window.handleBase64Download not available');
+          }
+          
+          // Set base64 to window for manual access
+          window.generatedBase64 = base64;
+          window.generatedFilename = filename;
+          console.log('✓ Base64 set to window.generatedBase64');
+          console.log('Base64 length:', base64.length, 'characters');
+          
+          return;
+        }
+        
+        // Standard browser download
+        downloadDataURL(dataURL, filename);
+        
       } catch (error) {
         console.error('Download error:', error);
         // Fallback method
