@@ -81,22 +81,62 @@
       z-index: 999;
     }
     
+    /* Navbar Styles */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0;
+    }
+    
+    @media (max-width: 640px) {
+      .navbar {
+        padding: 0 16px;
+      }
+      
+      .navbar-title {
+        font-size: 1.1rem;
+      }
+      
+      .hamburger-btn {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .hamburger-icon {
+        width: 16px;
+        height: 16px;
+      }
+    }
+    
     /* Hamburger Menu Styles */
     .hamburger-btn {
-      position: fixed;
-      top: 15px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       background: #3b82f6;
       border: none;
-      border-radius: 50%;
+      border-radius: 8px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
       transition: all 0.3s ease;
     }
     
@@ -106,9 +146,14 @@
     }
     
     .hamburger-icon {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       color: white;
+    }
+    
+    /* Adjust body padding for navbar */
+    body {
+      padding-top: 60px;
     }
     
     /* Modal Styles */
@@ -188,12 +233,15 @@
   <!-- Pull progress bar -->
   <div class="pull-progress" id="pullProgress"></div>
   
-  <!-- Hamburger Menu Button -->
-  <button class="hamburger-btn" id="hamburgerBtn" title="UPI ID Management">
-    <svg class="hamburger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-    </svg>
-  </button>
+  <!-- Fixed Navbar -->
+  <nav class="navbar">
+    <h1 class="navbar-title">Fixed-Amount UPI QR</h1>
+    <button class="hamburger-btn" id="hamburgerBtn" title="UPI ID Management">
+      <svg class="hamburger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </nav>
   
   <!-- UPI ID Management Modal -->
   <div class="modal-overlay" id="upiModal">
@@ -218,7 +266,6 @@
   </div>
   
   <div class="max-w-xl w-full bg-white rounded-2xl shadow-lg p-4 sm:p-6">
-    <h1 class="text-xl sm:text-2xl font-semibold mb-3">Fixed-Amount UPI QR</h1>
     <!-- <p class="text-xs sm:text-sm text-gray-600 mb-4">Jab koi scan karega, to jo amount yaha daala gaya hai wahi pre-fill ho jayega.</p> -->
 
     <div class="space-y-3">
