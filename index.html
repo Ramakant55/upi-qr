@@ -80,6 +80,101 @@
       transition: transform 0.1s ease;
       z-index: 999;
     }
+    
+    /* Hamburger Menu Styles */
+    .hamburger-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+    
+    .hamburger-btn:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+    
+    .hamburger-icon {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      padding: 20px;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6b7280;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.2s ease;
+    }
+    
+    .modal-close:hover {
+      color: #374151;
+      background: #f3f4f6;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 sm:p-6">
@@ -93,6 +188,35 @@
   <!-- Pull progress bar -->
   <div class="pull-progress" id="pullProgress"></div>
   
+  <!-- Hamburger Menu Button -->
+  <button class="hamburger-btn" id="hamburgerBtn" title="UPI ID Management">
+    <svg class="hamburger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+  
+  <!-- UPI ID Management Modal -->
+  <div class="modal-overlay" id="upiModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="text-lg font-semibold text-gray-800">UPI ID Management</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="flex gap-2">
+          <input id="newUpiId" class="flex-1 rounded-md border border-gray-300 shadow-sm p-2 text-sm" placeholder="नया UPI ID add करें (example@upi)" value=""/>
+          <button id="addUpiId" class="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">Add</button>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-700 mb-2">Saved UPI IDs:</h3>
+          <div id="upiIdsList" class="space-y-1 max-h-48 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <div class="max-w-xl w-full bg-white rounded-2xl shadow-lg p-4 sm:p-6">
     <h1 class="text-xl sm:text-2xl font-semibold mb-3">Fixed-Amount UPI QR</h1>
     <!-- <p class="text-xs sm:text-sm text-gray-600 mb-4">Jab koi scan karega, to jo amount yaha daala gaya hai wahi pre-fill ho jayega.</p> -->
@@ -100,7 +224,9 @@
     <div class="space-y-3">
       <div>
         <label class="block text-sm font-medium text-gray-700">Payee UPI ID</label>
-        <input id="vpa" class="mt-1 block w-full rounded-md border border-black shadow-sm p-2 text-sm" placeholder="example@upi" value=""/>
+        <select id="vpa" class="mt-1 block w-full rounded-md border border-black shadow-sm p-2 text-sm">
+          <option value="">Select UPI ID</option>
+        </select>
       </div>
 
       <div>
@@ -141,6 +267,203 @@
     const qrcodeEl = document.getElementById('qrcode');
     let qr;
     
+    // UPI ID Management
+    let savedUpiIds = [];
+    const STORAGE_KEY = 'upi_qr_saved_ids';
+    
+    // Load saved UPI IDs from localStorage
+    function loadSavedUpiIds() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          savedUpiIds = JSON.parse(saved);
+        }
+      } catch (e) {
+        console.error('Error loading saved UPI IDs:', e);
+        savedUpiIds = [];
+      }
+      updateUpiDropdown();
+      displayUpiIdsList();
+    }
+    
+    // Save UPI IDs to localStorage
+    function saveUpiIds() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedUpiIds));
+      } catch (e) {
+        console.error('Error saving UPI IDs:', e);
+      }
+    }
+    
+    // Add new UPI ID
+    function addUpiId() {
+      const newUpiInput = document.getElementById('newUpiId');
+      const newUpiId = newUpiInput.value.trim();
+      
+      if (!newUpiId) {
+        alert('कृपया UPI ID enter करें');
+        return;
+      }
+      
+      // Basic UPI ID validation
+      if (!newUpiId.includes('@') || newUpiId.length < 5) {
+        alert('कृपया valid UPI ID enter करें (example@upi)');
+        return;
+      }
+      
+      // Check for duplicates
+      if (savedUpiIds.includes(newUpiId)) {
+        alert('यह UPI ID पहले से मौजूद है');
+        return;
+      }
+      
+      // Add to array
+      savedUpiIds.push(newUpiId);
+      saveUpiIds();
+      updateUpiDropdown();
+      displayUpiIdsList();
+      
+      // Clear input
+      newUpiInput.value = '';
+      
+      // Show success message
+      showNotification('✓ UPI ID add हो गया!', 'success');
+    }
+    
+    // Remove UPI ID
+    function removeUpiId(upiId) {
+      const index = savedUpiIds.indexOf(upiId);
+      if (index > -1) {
+        savedUpiIds.splice(index, 1);
+        saveUpiIds();
+        updateUpiDropdown();
+        displayUpiIdsList();
+        showNotification('✓ UPI ID delete हो गया!', 'success');
+      }
+    }
+    
+    // Update dropdown options
+    function updateUpiDropdown() {
+      const dropdown = document.getElementById('vpa');
+      const currentValue = dropdown.value;
+      
+      // Clear existing options except the first one
+      dropdown.innerHTML = '<option value=\"\">UPI ID select करें</option>';
+      
+      // Add saved UPI IDs as options
+      savedUpiIds.forEach(upiId => {
+        const option = document.createElement('option');
+        option.value = upiId;
+        option.textContent = upiId;
+        dropdown.appendChild(option);
+      });
+      
+      // Restore previous selection if it still exists
+      if (currentValue && savedUpiIds.includes(currentValue)) {
+        dropdown.value = currentValue;
+      }
+    }
+    
+    // Display UPI IDs list with delete buttons
+    function displayUpiIdsList() {
+      const listContainer = document.getElementById('upiIdsList');
+      
+      if (savedUpiIds.length === 0) {
+        listContainer.innerHTML = '<p class=\"text-xs text-gray-500 italic\">कोई saved UPI ID नहीं है</p>';
+        return;
+      }
+      
+      listContainer.innerHTML = savedUpiIds.map(upiId => `
+        <div class=\"flex items-center justify-between bg-white p-2 rounded border text-sm\">
+          <span class=\"flex-1 truncate\">${upiId}</span>
+          <button onclick=\"removeUpiId('${upiId}')\" class=\"ml-2 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600\" title=\"Delete\">×</button>
+        </div>
+      `).join('');
+    }
+    
+    // Show notification
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.textContent = message;
+      const bgColor = type === 'success' ? '#10b981' : '#ef4444';
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${bgColor};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1001;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        white-space: nowrap;
+        max-width: 90vw;
+        text-align: center;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Fade in
+      setTimeout(() => notification.style.opacity = '1', 100);
+      
+      // Fade out and remove
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 2000);
+    }
+    
+    // Modal functionality
+    function openModal() {
+      document.getElementById('upiModal').classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeModal() {
+      document.getElementById('upiModal').classList.remove('active');
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+    
+    // Initialize UPI ID management
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSavedUpiIds();
+      
+      // Add event listeners
+      document.getElementById('addUpiId').addEventListener('click', addUpiId);
+      document.getElementById('hamburgerBtn').addEventListener('click', openModal);
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      
+      // Close modal when clicking outside
+      document.getElementById('upiModal').addEventListener('click', (e) => {
+        if (e.target.id === 'upiModal') {
+          closeModal();
+        }
+      });
+      
+      // Close modal with Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('upiModal').classList.contains('active')) {
+          closeModal();
+        }
+      });
+      
+      // Allow Enter key to add UPI ID
+      document.getElementById('newUpiId').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          addUpiId();
+        }
+      });
+    });
+    
     // Pull to refresh variables
     let touchStartY = 0;
     let touchStartX = 0;
@@ -162,6 +485,11 @@
       document.getElementById('pname').value = '';
       document.getElementById('amount').value = '';
       document.getElementById('note').value = '';
+      // Clear modal input if it exists
+      const modalUpiInput = document.getElementById('newUpiId');
+      if (modalUpiInput) {
+        modalUpiInput.value = '';
+      }
       
       // Clear QR code
       qrcodeEl.innerHTML = '';
