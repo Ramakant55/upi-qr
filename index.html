@@ -217,14 +217,692 @@
       transition: color 0.2s ease;
     }
     
-    .modal-close:hover {
-      color: #374151;
-      background: #f3f4f6;
+    /* Loader Styles */
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .loader .dots {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      perspective: 200px;
+      transform-style: preserve-3d;
+    }
+
+    .loader .dots:nth-child(1) {
+      animation: dots 3000ms linear infinite;
+    }
+
+    .loader .dots:nth-child(2) {
+      animation: dots2 3000ms linear infinite;
+    }
+
+    .loader .dots:nth-child(3) {
+      animation: dots3 3000ms linear infinite;
+    }
+
+    .loader .dots:nth-child(4) {
+      animation: dots4 3000ms linear infinite;
+    }
+
+    .loader .dots:nth-child(5) {
+      animation: dots5 3000ms linear infinite;
+    }
+
+    .loader .dots:nth-child(6) {
+      animation: dots6 3000ms linear infinite;
+    }
+
+    @keyframes dots {
+      0% {
+        transform: rotateX(30deg) rotateZ(0deg) translateZ(-50px);
+      }
+      50% {
+        transform: rotateX(60deg) rotateZ(1728deg) translateZ(-100px);
+      }
+      100% {
+        transform: rotateX(30deg) rotateZ(3456deg) translateZ(-50px);
+      }
+    }
+
+    @keyframes dots2 {
+      0% {
+        transform: rotateX(30deg) rotateZ(0deg) translateZ(-36px);
+      }
+      50% {
+        transform: rotateX(60deg) rotateZ(864deg) translateZ(-72px);
+      }
+      100% {
+        transform: rotateX(30deg) rotateZ(1728deg) translateZ(-36px);
+      }
+    }
+
+    @keyframes dots3 {
+      0% {
+        transform: rotateX(30deg) rotateZ(0deg) translateZ(-24px);
+      }
+      50% {
+        transform: rotateX(60deg) rotateZ(432deg) translateZ(-48px);
+      }
+      100% {
+        transform: rotateX(30deg) rotateZ(864deg) translateZ(-24px);
+      }
+    }
+
+    @keyframes dots4 {
+      0% {
+        transform: rotateX(30deg) rotateZ(0deg) translateZ(-14px);
+      }
+      50% {
+        transform: rotateX(60deg) rotateZ(216deg) translateZ(-28px);
+      }
+      100% {
+        transform: rotateX(30deg) rotateZ(432deg) translateZ(-14px);
+      }
+    }
+
+    @keyframes dots5 {
+      0% {
+        transform: rotateX(30deg) rotateZ(0deg) translateZ(-6px);
+      }
+      50% {
+        transform: rotateX(60deg) rotateZ(108deg) translateZ(-12px);
+      }
+      100% {
+        transform: rotateX(30deg) rotateZ(216deg) translateZ(-6px);
+      }
+    }
+
+    @keyframes dots6 {
+      0% {
+        transform: rotateX(30deg) rotateZ(0deg) translateZ(0px);
+      }
+      50% {
+        transform: rotateX(60deg) rotateZ(54deg) translateZ(-3px);
+      }
+      100% {
+        transform: rotateX(30deg) rotateZ(108deg) translateZ(0px);
+      }
+    }
+
+    .loader .dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      margin-left: -5px;
+      margin-top: -5px;
+      border-radius: 50%;
+      background-color: #1e3f57;
+      transform-style: preserve-3d;
+      transform: rotateZ(0) translateY(0);
+    }
+
+    .loader .dots:nth-child(6) .dot {
+      background-color: #1e3f57;
+    }
+
+    .loader .dots:nth-child(1) .dot:nth-child(1) {
+      transform: rotateZ(0deg) translateY(-10px);
+    }
+
+    .loader .dots:nth-child(1) .dot:nth-child(2) {
+      transform: rotateZ(90deg) translateY(-10px) translateZ(-140px);
+    }
+
+    .loader .dots:nth-child(1) .dot:nth-child(3) {
+      transform: rotateZ(180deg) translateY(-10px);
+    }
+
+    .loader .dots:nth-child(1) .dot:nth-child(4) {
+      transform: rotateZ(270deg) translateY(-10px) translateZ(-140px);
+    }
+
+    .loader .dots:nth-child(5) .dot {
+      background-color: #295068;
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(1) {
+      transform: rotateZ(0deg) translateY(-22px);
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(2) {
+      transform: rotateZ(45deg) translateY(-22px) translateZ(-120px);
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(3) {
+      transform: rotateZ(90deg) translateY(-22px);
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(4) {
+      transform: rotateZ(135deg) translateY(-22px) translateZ(-120px);
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(5) {
+      transform: rotateZ(180deg) translateY(-22px);
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(6) {
+      transform: rotateZ(225deg) translateY(-22px) translateZ(-120px);
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(7) {
+      transform: rotateZ(270deg) translateY(-22px);
+    }
+
+    .loader .dots:nth-child(2) .dot:nth-child(8) {
+      transform: rotateZ(315deg) translateY(-22px) translateZ(-120px);
+    }
+
+    .loader .dots:nth-child(4) .dot {
+      background-color: #3b6a83;
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(1) {
+      transform: rotateZ(0deg) translateY(-34px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(2) {
+      transform: rotateZ(30deg) translateY(-34px) translateZ(-100px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(3) {
+      transform: rotateZ(60deg) translateY(-34px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(4) {
+      transform: rotateZ(90deg) translateY(-34px) translateZ(-100px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(5) {
+      transform: rotateZ(120deg) translateY(-34px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(6) {
+      transform: rotateZ(150deg) translateY(-34px) translateZ(-100px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(7) {
+      transform: rotateZ(180deg) translateY(-34px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(8) {
+      transform: rotateZ(210deg) translateY(-34px) translateZ(-100px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(9) {
+      transform: rotateZ(240deg) translateY(-34px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(10) {
+      transform: rotateZ(270deg) translateY(-34px) translateZ(-100px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(11) {
+      transform: rotateZ(300deg) translateY(-34px);
+    }
+
+    .loader .dots:nth-child(3) .dot:nth-child(12) {
+      transform: rotateZ(330deg) translateY(-34px) translateZ(-100px);
+    }
+
+    .loader .dots:nth-child(3) .dot {
+      background-color: #4d86a0;
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(1) {
+      transform: rotateZ(0deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(2) {
+      transform: rotateZ(20deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(3) {
+      transform: rotateZ(40deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(4) {
+      transform: rotateZ(60deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(5) {
+      transform: rotateZ(80deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(6) {
+      transform: rotateZ(100deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(7) {
+      transform: rotateZ(120deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(8) {
+      transform: rotateZ(140deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(9) {
+      transform: rotateZ(160deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(10) {
+      transform: rotateZ(180deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(11) {
+      transform: rotateZ(200deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(12) {
+      transform: rotateZ(220deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(13) {
+      transform: rotateZ(240deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(14) {
+      transform: rotateZ(260deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(15) {
+      transform: rotateZ(280deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(16) {
+      transform: rotateZ(300deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(17) {
+      transform: rotateZ(320deg) translateY(-46px);
+    }
+
+    .loader .dots:nth-child(4) .dot:nth-child(18) {
+      transform: rotateZ(340deg) translateY(-46px) translateZ(-80px);
+    }
+
+    .loader .dots:nth-child(2) .dot {
+      background-color: #5ea0ba;
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(1) {
+      transform: rotateZ(0deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(2) {
+      transform: rotateZ(15deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(3) {
+      transform: rotateZ(30deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(4) {
+      transform: rotateZ(45deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(5) {
+      transform: rotateZ(60deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(6) {
+      transform: rotateZ(75deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(7) {
+      transform: rotateZ(90deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(8) {
+      transform: rotateZ(105deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(9) {
+      transform: rotateZ(120deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(10) {
+      transform: rotateZ(135deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(11) {
+      transform: rotateZ(150deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(12) {
+      transform: rotateZ(165deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(13) {
+      transform: rotateZ(180deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(14) {
+      transform: rotateZ(195deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(15) {
+      transform: rotateZ(210deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(16) {
+      transform: rotateZ(225deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(17) {
+      transform: rotateZ(240deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(18) {
+      transform: rotateZ(255deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(19) {
+      transform: rotateZ(270deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(20) {
+      transform: rotateZ(285deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(21) {
+      transform: rotateZ(300deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(22) {
+      transform: rotateZ(315deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(23) {
+      transform: rotateZ(330deg) translateY(-58px);
+    }
+
+    .loader .dots:nth-child(5) .dot:nth-child(24) {
+      transform: rotateZ(345deg) translateY(-58px) translateZ(-40px);
+    }
+
+    .loader .dots:nth-child(1) .dot {
+      background-color: #6bb1cd;
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(1) {
+      transform: rotateZ(0deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(2) {
+      transform: rotateZ(10deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(3) {
+      transform: rotateZ(20deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(4) {
+      transform: rotateZ(30deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(5) {
+      transform: rotateZ(40deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(6) {
+      transform: rotateZ(50deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(7) {
+      transform: rotateZ(60deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(8) {
+      transform: rotateZ(70deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(9) {
+      transform: rotateZ(80deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(10) {
+      transform: rotateZ(90deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(11) {
+      transform: rotateZ(100deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(12) {
+      transform: rotateZ(110deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(13) {
+      transform: rotateZ(120deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(14) {
+      transform: rotateZ(130deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(15) {
+      transform: rotateZ(140deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(16) {
+      transform: rotateZ(150deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(17) {
+      transform: rotateZ(160deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(18) {
+      transform: rotateZ(170deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(19) {
+      transform: rotateZ(180deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(20) {
+      transform: rotateZ(190deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(21) {
+      transform: rotateZ(200deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(22) {
+      transform: rotateZ(210deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(23) {
+      transform: rotateZ(220deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(24) {
+      transform: rotateZ(230deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(25) {
+      transform: rotateZ(240deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(26) {
+      transform: rotateZ(250deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(27) {
+      transform: rotateZ(260deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(28) {
+      transform: rotateZ(270deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(29) {
+      transform: rotateZ(280deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(30) {
+      transform: rotateZ(290deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(31) {
+      transform: rotateZ(300deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(32) {
+      transform: rotateZ(310deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(33) {
+      transform: rotateZ(320deg) translateY(-70px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(34) {
+      transform: rotateZ(330deg) translateY(-70px) translateZ(-20px);
+    }
+
+    .loader .dots:nth-child(6) .dot:nth-child(35) {
+      transform: rotateZ(340deg) translateY(-70px);
+    }
+
+    /* Hide main content initially */
+    #main-content {
+      display: none;
     }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 sm:p-6">
-  <!-- Pull to refresh indicator -->
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
   <div class="pull-refresh-indicator" id="pullIndicator">
     <svg class="refresh-icon" id="refreshIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -266,7 +944,7 @@
     </div>
   </div>
   
-  <div class="max-w-xl w-full bg-white rounded-2xl border p-4 sm:p-6 mx-auto" style="margin-top: 60px;">
+  <div id="main-content" class="max-w-xl w-full bg-white rounded-2xl border p-4 sm:p-6 mx-auto" style="margin-top: 60px;">
 
     <div class="space-y-4">
       <div>
@@ -478,6 +1156,12 @@
     // Initialize UPI ID management
     document.addEventListener('DOMContentLoaded', () => {
       loadSavedUpiIds();
+      
+      // Show loader for 3 seconds, then show main content
+      setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+      }, 3000); // 3 seconds
       
       // Add event listeners
       document.getElementById('addUpiId').addEventListener('click', addUpiId);
