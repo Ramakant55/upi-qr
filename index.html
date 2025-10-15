@@ -41,7 +41,7 @@
     }
     
     .pull-refresh-indicator.visible {
-      top: 20px;
+      top: 80px;
     }
     
     .pull-refresh-indicator.loading {
@@ -154,6 +154,7 @@
     /* Adjust body padding for navbar */
     body {
       padding-top: 60px;
+      min-height: calc(100vh - 60px);
     }
     
     /* Modal Styles */
@@ -222,7 +223,7 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 sm:p-6">
+<body class="bg-gray-50 min-h-screen p-4 sm:p-6">
   <!-- Pull to refresh indicator -->
   <div class="pull-refresh-indicator" id="pullIndicator">
     <svg class="refresh-icon" id="refreshIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,7 +266,7 @@
     </div>
   </div>
   
-  <div class="max-w-xl w-full bg-white rounded-2xl border p-4 sm:p-6">
+  <div class="max-w-xl w-full bg-white rounded-2xl border p-4 sm:p-6 mx-auto mt-4">
 
     <div class="space-y-3">
       <div>
@@ -434,7 +435,7 @@
       const bgColor = type === 'success' ? '#10b981' : '#ef4444';
       notification.style.cssText = `
         position: fixed;
-        top: 20px;
+        top: 80px;
         left: 50%;
         transform: translateX(-50%);
         background: ${bgColor};
@@ -689,7 +690,7 @@
       notification.textContent = '✓ Data reset ho gaya!';
       notification.style.cssText = `
         position: fixed;
-        top: 20px;
+        top: 80px;
         left: 50%;
         transform: translateX(-50%);
         background: #10b981;
